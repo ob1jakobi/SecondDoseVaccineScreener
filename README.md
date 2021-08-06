@@ -1,0 +1,2 @@
+# SecondDoseVaccineScreener
+A basic program for reviewing CSV or Excel reports to obtain data regarding which patients need follow-up for a second dose of a two-dose vaccine series.  Primarily intended for COVID-19 mRNA vaccinations obtained from I-CARE (Illinois Comprehensive Automated Immunization Registry Exchange), but can be utilized for any vaccine reports that require a two-dose series of vaccinations.
