@@ -7,12 +7,17 @@ from tkinter.filedialog import asksaveasfilename
 
 
 def date_handler(patient_date):
+    """A function that converts a date - whether it be a datetime object or not - and converts it
+    into a uniform format that takes the form of 'mm/dd/yyyy'."""
+    # parameter is a datetime object, so convert it to the uniform format
     if type(patient_date) == datetime.datetime:
         month = patient_date.strftime("%m")
         day = patient_date.strftime("%d")
         year = patient_date.strftime("%Y")
         return f"{month}/{day}/{year}"
+    # the current two-digit year (used to ensure four-digit year is obtained correctly)
     current_year = datetime.date.today().strftime("%y")
+    # holds the list-version of the parameter that has been split according to '-' or '/' separator
     temp = ""
     flag = False
     for c in patient_date:
@@ -23,14 +28,15 @@ def date_handler(patient_date):
             flag = True
             break
     if flag:
-        # mm/dd/yyyy
+        # mm/dd/yyyy or mm/dd/yy
         temp = patient_date.split("/")
     else:
-        # mm-dd-yyyy
+        # mm-dd-yyyy or mm-dd-yy
         temp = patient_date.split("-")
     month = temp[0]
     day = temp[1]
     year = temp[2]
+    # convert single-digit days & month, and two-digit years to their two-digit day/month and 4-digit year
     if len(month) == 1 and int(month) < 10:
         month = "0" + month
     if len(day) == 1 and int(day) < 10:
@@ -54,7 +60,7 @@ class SecondDoseScreener:
         self.filename = None
         self.wb = None  # the workbook
 
-        self.patients = set()
+        self.patients = set()   # the patients who need a return visit
 
         self.text = tk.Text(self.parent)
         self.text.pack()
@@ -87,7 +93,7 @@ class SecondDoseScreener:
 
     def load(self):
         name = askopenfilename(filetypes=[('Excel', ('*.xls', '*.xslm', '*.xlsx')), ('CSV', '*.csv',)])
-        # convert csv to xlsx file
+        # initialize self.wb with the contents of the CSV file
         if name.endswith(".csv"):
             temp = op.Workbook()
             temp_wb = temp.active
@@ -95,10 +101,9 @@ class SecondDoseScreener:
                 reader = csv.reader(f)
                 for row in reader:
                     temp_wb.append(row)
-            name = name.replace(".csv", ".xlsx")
-            temp.save(name)
-        # file is xlsx, so initialize wb to be the workbook file
-        self.wb = op.load_workbook(name).active
+            self.wb = temp_wb
+        else:   # file is xlsx, so initialize self.wb to be the active workbook file
+            self.wb = op.load_workbook(name).active
         self.filename = name
         if self.filename is not None and self.wb is not None:
             self.text.insert("end", "\n\nFile loaded successfully" + "\n")
